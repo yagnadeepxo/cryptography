@@ -81,11 +81,17 @@ fn point_add(p: &ProjectivePoint, q: &ProjectivePoint) -> ProjectivePoint {
 }
 
 
-fn to_affine(p: &ProjectivePoint) -> (BigInt, BigInt) {
+fn to_affine(p: &ProjectivePoint) -> Option<(BigInt, BigInt)> {
+    // Check if Z is zero or not.
+    if p.z == BigInt::from(0) {
+        return None;
+    }
+
+    // Compute affine coordinates.
     let x = &p.x / &p.z;
     let y = &p.y / &p.z;
-  
-    (x, y)  
+
+    Some((x, y))
 }
 
 
@@ -108,23 +114,22 @@ fn main() {
     let doubled_point = point_double(&point1);
     println!("Doubled Point: x={}, y={}, z={}", doubled_point.x, doubled_point.y, doubled_point.z);
 
-    let affine_point = to_affine(&doubled_point);
-    println!("Affine Point: x={}, y={}", affine_point.0, affine_point.1);
-
+    if let Some(affine_point) = to_affine(&doubled_point) {
+        let (x, y) = affine_point;
+        println!("Affine Point: x={}, y={}", x, y);
+    } else {
+        println!("Conversion to affine failed: Z is zero.");
+    }
+    
     // Test point addition.
     let added_point = point_add(&point1, &point2);
     println!("Added Point: x={}, y={}, z={}", added_point.x, added_point.y, added_point.z);
 
-    let affine_point = to_affine(&added_point);
-    println!("Affine Point: x={}, y={}", affine_point.0, affine_point.1);
-
+    if let Some(affine_point) = to_affine(&doubled_point) {
+        let (x, y) = affine_point;
+        println!("Affine Point: x={}, y={}", x, y);
+    } else {
+        println!("Conversion to affine failed: Z is zero.");
+    }
+        
 }
-
-
-
-
-
-
-
-
-
